@@ -25,8 +25,6 @@ app.get("/api/hello", function (req, res) {
 });
 
 app.get("/api/whoami", (req,res)=>{
-  console.log(req);
-  console.log(req.socket.remoteAddress)
 
   const obj = {
     ipaddress : req.socket.remoteAddress,
