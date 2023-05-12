@@ -16,20 +16,30 @@ app.get('/', function(req, res) {
   res.sendFile(process.cwd() + '/views/index.html');
 });
 
+app.use("/",(req,res,next)=>{
+  console.log(req.originalUrl)
+  console.log(req.method)
+  next();
+})
+
 // Your first API endpoint
 app.get('/api/hello', function(req, res) {
   res.json({ greeting: 'hello API' });
 });
 
+const old_url = {};
+
 app.post("/api/shorturl", (req,res)=>{
-  console.log(req.get('host'))
   const url = req.body.url;
 
   if(url.split(":").length != 0){
     if(url.split(":")[0] == "https" || url.split(":")[0] == "http"){
+
+      const id = Math.floor(Math.random() * 10);
+      old_url[id] = req.body.url;
       res.send({
         original_url : req.body.url,
-        short_url:  /* req.get('host') +"/api/shorturl/"+ */ Math.floor(Math.random() * 10)
+        short_url:  id
       })
     }else{
       res.send({ error: 'invalid url' });
@@ -39,8 +49,9 @@ app.post("/api/shorturl", (req,res)=>{
   }
 })
 
-app.get("/api/shorturl/*", (req,res)=>{
-  res.sendFile(process.cwd() + '/views/index.html');
+app.get("/api/shorturl/:id", (req,res)=>{
+  const id_data = req.params.id;
+  res.redirect(old_url[id_data]);
 })
 
 app.listen(port, function() {
