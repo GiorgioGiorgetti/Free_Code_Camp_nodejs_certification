@@ -1,42 +1,48 @@
-// index.js
-// where your node app starts
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const app = express();
 
-// init project
-var express = require('express');
-var app = express();
+// Basic Configuration
+const port = process.env.PORT || 3000;
 
-// enable CORS (https://en.wikipedia.org/wiki/Cross-origin_resource_sharing)
-// so that your API is remotely testable by FCC 
-var cors = require('cors');
-app.use(cors({optionsSuccessStatus: 200}));  // some legacy browsers choke on 204
+app.use(cors());
+app.use(bodyParser.urlencoded({extended: true}));
 
-// http://expressjs.com/en/starter/static-files.html
-app.use(express.static('public'));
+app.use('/public', express.static(`${process.cwd()}/public`));
 
-// http://expressjs.com/en/starter/basic-routing.html
-app.get("/", function (req, res) {
-  res.sendFile(__dirname + '/views/index.html');
+app.get('/', function(req, res) {
+  res.sendFile(process.cwd() + '/views/index.html');
 });
 
-
-// your first API endpoint... 
-app.get("/api/hello", function (req, res) {
-  res.json({greeting: 'hello API'});
+// Your first API endpoint
+app.get('/api/hello', function(req, res) {
+  res.json({ greeting: 'hello API' });
 });
 
-app.get("/api/whoami", (req,res)=>{
+app.post("/api/shorturl", (req,res)=>{
+  console.log(req.get('host'))
+  const url = req.body.url;
 
-  const obj = {
-    ipaddress : req.socket.remoteAddress,
-    language : req.headers["accept-language"],
-    software: req.headers["user-agent"]
+  if(url.split(":").length != 0){
+    if(url.split(":")[0] == "https" || url.split(":")[0] == "http"){
+      res.send({
+        original_url : req.body.url,
+        short_url:  /* req.get('host') +"/api/shorturl/"+ */ Math.floor(Math.random() * 10)
+      })
+    }else{
+      res.send({ error: 'invalid url' });
+    }
+  }else{
+    res.send({ error: 'invalid url' });
   }
-  res.send(obj)
 })
 
+app.get("/api/shorturl/*", (req,res)=>{
+  res.sendFile(process.cwd() + '/views/index.html');
+})
 
-
-// listen for requests :)
-var listener = app.listen( 5000, function () {
-  console.log('Your app is listening on port ' + listener.address().port);
+app.listen(port, function() {
+  console.log(`Listening on port ${port}`);
 });
