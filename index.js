@@ -24,37 +24,18 @@ app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
 });
 
-app.get("/api/:date", (req,res)=>{
-  const date_input = req.params.date;
+app.get("/api/whoami", (req,res)=>{
+  console.log(req);
+  console.log(req.socket.remoteAddress)
 
-  
-  let date = new Date(date_input);
-  
-  if(date == "Invalid Date"){
-    date = new Date(parseInt(date_input));
+  const obj = {
+    ipaddress : req.socket.remoteAddress,
+    language : req.headers["accept-language"],
+    software: req.headers["user-agent"]
   }
-
-  let obj = {
-    unix: date.getTime(),
-    utc: date.toUTCString()
-  }
-
-  if(date == "Invalid Date"){
-    res.send({ error : "Invalid Date" });
-  }else{
-    res.send(obj);
-  }
-  
-
+  res.send(obj)
 })
 
-app.get("/api/",(req,res)=>{
-  const current_date = new Date();
-  res.send({
-    unix: current_date.getTime(),
-    utc: current_date.toUTCString()
-  })
-})
 
 
 // listen for requests :)
